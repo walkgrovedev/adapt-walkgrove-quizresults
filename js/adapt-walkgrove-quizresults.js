@@ -72,6 +72,8 @@ define([
 
       this.$('.component__body-inner').html(content);
 
+      Adapt.offlineStorage.set('leadership_value', points);
+
       this.removeInviewListener();
 
     },
