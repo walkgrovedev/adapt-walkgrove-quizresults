@@ -29,6 +29,84 @@
       "validators": [],
       "help": "This is the instruction text",
       "translatable": true
+    },
+    "alternate_body": {
+      "type": "string",
+      "required": true,
+      "translatable": true
+    },
+    "_bonus_points": {
+      "type": "number",
+      "required": true,
+      "translatable": false
+    },
+    "_screen_points": {
+      "type": "number",
+      "required": true,
+      "translatable": false
+    },
+    "_completion_points": {
+      "type": "number",
+      "required": true,
+      "translatable": false
+    },
+    "_bonus_screens": {
+      "type": "number",
+      "required": true,
+      "translatable": false
+    },
+    "_graphic": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "src": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "title": "Initial image",
+          "inputType": "Text",
+          "validators": [],
+          "help": "",
+          "translatable": false
+        }
+      }
+    },
+    "_alternate_graphic": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "src": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "title": "Alternate image",
+          "inputType": "Text",
+          "validators": [],
+          "help": "",
+          "translatable": false
+        }
+      }
+    },
+    "_screens": {
+      "type": "array",
+      "required": true,
+      "title": "Question screens to mark",
+      "items": {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "_screen_id": {
+            "type": "string",
+            "required": true,
+            "default": "",
+            "title": "Question screen ID",
+            "inputType": "Text",
+            "validators": [],
+            "help": "",
+            "translatable": false
+          }
+        }
+      }
     }
   }
 }
