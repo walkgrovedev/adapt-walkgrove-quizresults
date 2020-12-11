@@ -1,6 +1,6 @@
 <div class="component__inner quizresults__inner">
   {{> component this}} 
 
-  <img src="{{_graphic.src}}" class="quizresults__image"/>
+  <img src="{{_graphic.src}}" class="quizresults__image" {{#if _graphic.alt}}aria-label="{{_graphic.alt}}"{{else}}aria-hidden="true"{{/if}}/>
 
 </div>
