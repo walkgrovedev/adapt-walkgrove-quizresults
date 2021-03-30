@@ -1,6 +1,15 @@
 <div class="component__inner quizresults__inner">
   {{> component this}} 
 
-  <img src="{{_graphic.src}}" class="quizresults__image" {{#if _graphic.alt}}aria-label="{{_graphic.alt}}"{{else}}aria-hidden="true"{{/if}}/>
+  
+  {{#if buttonTitle}} 
+    <div class="quizresults__button button is-hidden">
+      <button class="quizresults__retry-btn btn js-retry-click" aria-label="{{{buttonTitle}}}">
+        {{{buttonTitle}}}
+      </button>
+    </div>
+  {{/if}} 
+      
+  <img src="{{_graphic.src}}" class="quizresults__image" {{#if _graphic.alt}}aria-label="{{_graphic.alt}}"{{else}}alt=""{{/if}}/>
 
 </div>

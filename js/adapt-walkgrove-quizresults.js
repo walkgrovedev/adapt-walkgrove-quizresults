@@ -6,7 +6,11 @@ define([
 
   var QuizResultsView = ComponentView.extend({
 
-    ppreRender: function() {
+    events: {
+      'click .js-retry-click': 'onRetryQuestions'
+    },
+    
+    preRender: function() {
       this.checkIfResetOnRevisit();
     },
 
@@ -54,6 +58,7 @@ define([
       });
 
       let content = contentbody;
+      let passed = false;
 
       if(screensCorrect >= screensForBonus) {
 
@@ -63,18 +68,28 @@ define([
 
         this.$('.quizresults__image').attr('src', '' + alternategraphic + '');
 
+        passed = true;
+
       } else {
 
         content = content.replace('{0}','' + points + '');
         this.$('.quizresults__image').attr('src', '' + graphic + '');
 
+        this.$('.quizresults__button').removeClass('is-hidden');
+
       }
 
       this.$('.component__body-inner').html(content);
 
-      Adapt.offlineStorage.set('leadership_value', points);
+      //Adapt.offlineStorage.set('leadership_value', points);
+      const percent = (100/screensForBonus) * screensCorrect;
+      Adapt.offlineStorage.set('score', percent);
 
       this.removeInviewListener();
+
+      if(passed) {
+        this.setCompletionStatus(); 
+      }
 
     },
 
@@ -98,6 +113,37 @@ define([
       if (isResetOnRevisit) {
         this.model.reset(isResetOnRevisit);
       }
+    },
+
+    onRetryQuestions() {
+      //var currentModel = Adapt.findById(Adapt.location._currentId);
+      // currentModel.getChildren().each(child => {
+      //   child.getChildren().each(child2 => {
+      //     this.model.get('_screens').forEach(function(screen, index) {
+      //       var screenId = "b-"+screen._screen_id;
+      //       if(screenId === child2.attributes._id) {
+      //         // child2.set({
+      //         //   '_isInteractionComplete': false,
+      //         //   '_isComplete': false
+      //         // });
+      //         child2.reset(true);
+      //         console.log(child2);
+      //       }
+      //     });
+      //   }); 
+      // });
+      
+      this._forceResetOnRevisit = true;
+
+      this.listenToOnce(Adapt, 'pageView:ready', function() {
+        if (typeof callback == 'function') {
+          callback(true);
+        }
+      });
+
+      _.delay(function() {
+        Backbone.history.navigate('#/id/' + Adapt.location._currentId, { replace:true, trigger: true });
+      }, 250);
     }
 
 
