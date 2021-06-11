@@ -83,7 +83,8 @@ define([
 
       //Adapt.offlineStorage.set('leadership_value', points);
       const percent = (100/screensForBonus) * screensCorrect;
-      Adapt.offlineStorage.set('score', percent);
+      //Adapt.offlineStorage.set('score', percent);
+      Adapt.offlineStorage.set("score", percent, 0, 100);
 
       this.removeInviewListener();
 
