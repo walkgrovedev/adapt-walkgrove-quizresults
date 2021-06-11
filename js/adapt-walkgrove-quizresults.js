@@ -82,7 +82,7 @@ define([
       this.$('.component__body-inner').html(content);
 
       //Adapt.offlineStorage.set('leadership_value', points);
-      const percent = (100/screensForBonus) * screensCorrect;
+      const percent = (100/this.model.get('_screens').length) * screensCorrect;
       //Adapt.offlineStorage.set('score', percent);
       Adapt.offlineStorage.set("score", percent, 0, 100);
 
