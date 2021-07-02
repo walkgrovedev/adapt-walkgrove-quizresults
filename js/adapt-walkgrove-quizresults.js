@@ -131,16 +131,16 @@ define([
 
         //audio?
         if (Adapt.config.get('_sound')._isActive === true) {
-          if (this.get('_alternate_audio')) {
-            Adapt.trigger('audio:partial', {src: this.get('_alternate_audio')._src});
+          if (this.model.get('_pass_audio')) {
+            Adapt.trigger('audio:partial', {src: this.model.get('_pass_audio')._src});
           }
         }
       } else {
 
         //audio?
         if (Adapt.config.get('_sound')._isActive === true) {
-          if (this.get('_audio')) {
-            Adapt.trigger('audio:partial', {src: this.get('_audio')._src});
+          if (this.model.get('_fail__audio')) {
+            Adapt.trigger('audio:partial', {src: this.model.get('_fail__audio')._src});
           }
         }
         
