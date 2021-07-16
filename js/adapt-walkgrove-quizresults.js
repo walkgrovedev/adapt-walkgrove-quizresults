@@ -6,7 +6,11 @@ define([
 
   var QuizResultsView = ComponentView.extend({
 
-    ppreRender: function() {
+    events: {
+      'click .js-retry-click': 'onRetryQuestions'
+    },
+
+    preRender: function() {
       this.checkIfResetOnRevisit();
     },
 
@@ -19,7 +23,7 @@ define([
     setupInview: function() {
       var selector = this.getInviewElementSelector();
       if (!selector) {
-        this.setCompletionStatus();
+        //this.setCompletionStatus();
         return;
       }
 
@@ -31,6 +35,8 @@ define([
     setContent: function() {
       let contentbody = this.model.get('body');
       let alternatecontent = this.model.get('alternate_body');
+      let contentbodyalmost = this.model.get('bodyAlmost');
+      let contentinsalmost = this.model.get('insAlmost');
 
       const graphic = this.model.get('_graphic').src;
       const alternategraphic = this.model.get('_alternate_graphic').src;
@@ -54,28 +60,116 @@ define([
       });
 
       let content = contentbody;
+      let passed = false;
 
       if(screensCorrect >= screensForBonus) {
 
         points += bonusPoints;
+        
         content = alternatecontent;
-        content = content.replace('{0}','' + points + '');
+        content = content.replace('{0}','' + this.setWordPoints(points) + '');
 
         this.$('.quizresults__image').attr('src', '' + alternategraphic + '');
 
+        passed = true;
+
+        //show incorrect
+        const showQ = this.model.get('_screens').length - 2;
+
+        //console.log(screensCorrect, screensForBonus, this.model.get('_screens').length, showQ);
+
+        if(screensCorrect >= showQ && screensCorrect !== this.model.get('_screens').length) {
+
+          content = contentbodyalmost;
+          content = content.replace('{0}','' + this.setWordPoints(points) + '');
+
+          //list the incorrect questions (4/5 correct)
+          content += '<ul>';
+          this.model.get('_screens').forEach(function(screen, index) {
+            const screenId = "c-" + screen._screen_id;
+    
+            if(Adapt.findById(screenId).get('_score') !== 1) {
+              content += '<li><p><strong>' + Adapt.findById(screenId).get('displayTitle') + '</strong></p>' + Adapt.findById(screenId).get('body') + '</li>';
+            }
+          });
+          content += '</ul>';
+
+          content += contentinsalmost;
+        }
+
       } else {
 
-        content = content.replace('{0}','' + points + '');
+        content = content.replace('{0}','' + this.setWordPoints(points) + '');
         this.$('.quizresults__image').attr('src', '' + graphic + '');
+
+        this.$('.quizresults__button').removeClass('is-hidden');
+
+        //list the incorrect questions
+        content += '<ul>';
+        this.model.get('_screens').forEach(function(screen, index) {
+          const screenId = "c-" + screen._screen_id;
+  
+          if(Adapt.findById(screenId).get('_score') !== 1) {
+            content += '<li><p><strong>' + Adapt.findById(screenId).get('displayTitle') + '</strong></p>' + Adapt.findById(screenId).get('body') + '</li>';
+          }
+        });
+        content += '</ul>';
 
       }
 
       this.$('.component__body-inner').html(content);
 
-      Adapt.offlineStorage.set('leadership_value', points);
+      //Adapt.offlineStorage.set('leadership_value', points);
+      const percent = (100/this.model.get('_screens').length) * screensCorrect;
+      //Adapt.offlineStorage.set('score', percent);
+      Adapt.offlineStorage.set("score", percent, 0, 100);
 
       this.removeInviewListener();
 
+      if(passed) {
+        this.setCompletionStatus(); 
+
+        //audio?
+        if (Adapt.config.get('_sound')._isActive === true) {
+          if (this.model.get('_pass_audio')) {
+            Adapt.trigger('audio:feedback', {src: this.model.get('_pass_audio')._src});
+          }
+        }
+
+      } else {
+
+        //audio?
+        if (Adapt.config.get('_sound')._isActive === true) {
+          if (this.model.get('_fail__audio')) {
+            Adapt.trigger('audio:feedback', {src: this.model.get('_fail__audio')._src});
+          }
+        }
+        
+      }
+
+    },
+
+    setWordPoints: function(_points) {
+      let pointsStr = '';
+      pointsStr = Math.round((100/this.model.get('_screens').length)*_points) + "%";
+      // switch(_points){
+      //   case 1:
+      //     pointsStr = 'one';
+      //     break;
+      //   case 2:
+      //     pointsStr = 'two';
+      //     break;
+      //   case 3:
+      //     pointsStr = 'three';
+      //     break;
+      //   case 4:
+      //     pointsStr = 'four';
+      //     break;
+      //   case 5:
+      //     pointsStr = 'five';
+      //     break;
+      // }
+      return pointsStr;
     },
 
     /**
@@ -98,6 +192,37 @@ define([
       if (isResetOnRevisit) {
         this.model.reset(isResetOnRevisit);
       }
+    },
+
+    onRetryQuestions() {
+      //var currentModel = Adapt.findById(Adapt.location._currentId);
+      // currentModel.getChildren().each(child => {
+      //   child.getChildren().each(child2 => {
+      //     this.model.get('_screens').forEach(function(screen, index) {
+      //       var screenId = "b-"+screen._screen_id;
+      //       if(screenId === child2.attributes._id) {
+      //         // child2.set({
+      //         //   '_isInteractionComplete': false,
+      //         //   '_isComplete': false
+      //         // });
+      //         child2.reset(true);
+      //         console.log(child2);
+      //       }
+      //     });
+      //   }); 
+      // });
+      
+      this._forceResetOnRevisit = true;
+
+      this.listenToOnce(Adapt, 'pageView:ready', function() {
+        if (typeof callback == 'function') {
+          callback(true);
+        }
+      });
+
+      _.delay(function() {
+        Backbone.history.navigate('#/id/' + Adapt.location._currentId, { replace:true, trigger: true });
+      }, 250);
     }
 
 
