@@ -135,7 +135,6 @@ define([
             Adapt.trigger('audio:feedback', {src: this.model.get('_pass_audio')._src});
           }
         }
-
       } else {
 
         //audio?
